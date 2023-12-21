@@ -132,10 +132,13 @@ export class ClassroomService {
     }
     const classroomStudents = await this.classroomStudentsRepository.find({
       where: { classroomId: id },
-      select: ['studentId'],
+      relations: ['student'],
     });
-    const studentIds = classroomStudents.map((cs) => cs.studentId);
-    return { studentIds };
+    const students = classroomStudents.map((cs) => {
+      const { id, username, role } = cs.student;
+      return { id, username, role };
+    });
+    return { students };
   }
 
   async deleteClassroom(req: Express.Request, id: number) {

@@ -3,7 +3,7 @@ import { ClassroomService } from "./classroom.service";
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Roles } from "src/modules/user/decorators/role.decorator";
 import { Role } from "src/modules/user/enums/role.enum";
-import { AddStudentsToClassDto, CreateClassRoomDto, ClassRoomDataResDto } from "./dtos";
+import { AddStudentsToClassDto, CreateClassRoomDto, ClassRoomDataResDto, GetStudentsInClassroomResDto } from "./dtos";
 
 
 @Controller('classroom')
@@ -72,7 +72,7 @@ export class ClassroomController {
   @Get(":id/students")
   @ApiBearerAuth('jwt-auth')
   @Roles(Role.Tutor)
-  @ApiResponse({ status: 200, description: 'List of students in classroom'  })
+  @ApiResponse({ status: 200, description: 'List of students in classroom',type:GetStudentsInClassroomResDto  })
   getStudentsInClassroom(
     @Request() req:Express.Request,
     @Param('id') id: number,

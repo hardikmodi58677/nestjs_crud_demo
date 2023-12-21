@@ -46,6 +46,35 @@ export class ClassRoomCreatedResDto {
   data: ClassRoomDataResDto;
 }
 
+export class StudentDto{
+  @ApiProperty({
+    type: Number,
+    description: 'ID of the student',
+    example: 15,
+  })
+  id: number;
 
+  @ApiProperty({
+    type: String,
+    description: 'Username of the student',
+    example: 'john',
+  })
+  username: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Role of the student',
+    example: 'student',
+  })
+  role: string;
+}
+
+export class GetStudentsInClassroomResDto{
+  @ApiProperty({
+    type: [StudentDto],
+    description: 'Data of the response',
+  })
+  students: StudentDto[];
+}
 
 
