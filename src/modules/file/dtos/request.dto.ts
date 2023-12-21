@@ -32,3 +32,12 @@ export class FileUploadDto {
   })
   file: Express.Multer.File;
 }
+
+export class RenameFileReqDto {
+  @ApiProperty({
+    description: 'File name',
+    example: 'newFileName',
+  })
+  @IsNotEmpty()
+  name: string;
+}

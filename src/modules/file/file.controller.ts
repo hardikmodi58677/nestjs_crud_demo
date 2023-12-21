@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Request,
   UploadedFile,
@@ -23,7 +24,7 @@ import { Throttle } from '@nestjs/throttler';
 import { Roles } from '../user/decorators/role.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from '../user/enums/role.enum';
-import { FileUploadDto,UploadFileSuccessResDto,GetFilesSuccessResDto, FileDataDto } from "./dtos";
+import { FileUploadDto,UploadFileSuccessResDto,GetFilesSuccessResDto, FileDataDto, RenameFileReqDto } from "./dtos";
 import { FileService } from './file.service';
 import { validateAllowedFileTypes } from "src/utils";
 
@@ -80,8 +81,9 @@ export class FileController {
   getFiles(
     @Request() req: Express.Request,
     @Query('classroomId') classroomId: number,
+    @Query('searchTerm') searchTerm: string,
   ) {
-    return this.filesService.getFiles(req, classroomId);
+    return this.filesService.getFiles(req, classroomId,searchTerm);
   }
 
   @Get(':fileId')
@@ -103,7 +105,6 @@ export class FileController {
     return this.filesService.getFile(req,fileId);
   }
 
-
   @Delete(':fileId')
   @ApiBearerAuth('jwt-auth')
   @Roles(Role.Tutor)
@@ -116,4 +117,21 @@ export class FileController {
   deleteFile(@Param('fileId') fileId: number) {
     return this.filesService.deleteFile(fileId);
   }
+
+  @Put(':fileId')
+  @ApiBearerAuth('jwt-auth')
+  @Roles(Role.Tutor)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'File renamed successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'File not found!',type:FileDataDto })
+  @HttpCode(HttpStatus.OK)
+  renameFile(
+    @Param('fileId') fileId: number,
+    @Body() fileData: RenameFileReqDto
+  ) {
+    return this.filesService.renameFile(fileId,fileData);
+  }
+
 }

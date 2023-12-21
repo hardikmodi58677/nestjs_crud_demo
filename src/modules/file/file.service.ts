@@ -1,16 +1,17 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { FileUploadDto } from "./dtos"
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { FileUploadDto, RenameFileReqDto } from "./dtos"
 import {
   Classroom,
   ClassroomFiles,
   ClassroomStudents,
   File,
 } from '../classroom/entities';
-import { Equal, Repository } from 'typeorm';
+import { Equal, Like, Repository } from 'typeorm';
 import { ImageKitService } from 'src/libs/image-kit/src';
 import { ConfigService } from '@nestjs/config';
 import { Role } from '../user/enums/role.enum';
+import { User } from "../user/entities";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class FileService {
@@ -83,7 +84,7 @@ export class FileService {
     };
   }
 
-  async getFiles(req: Express.Request, classroomId: number) {
+  async getFiles(req: Express.Request, classroomId: number,searchTerm:string) {
     let classroom = await this.classroomRepository.findOne({
       where: { id: classroomId },
     });
@@ -91,21 +92,25 @@ export class FileService {
     if (!classroom) {
       throw new NotFoundException('Classroom not found');
     }
-    let files: any = await this.classroomFilesRepository.find({
-      where: { classroomId:Equal(classroomId) },
-      relations: ['fileId', 'tutorId'],
-    });
+
+    let files = await this.filesRepository.find({
+      where: {
+        uploadedBy: Equal(req['user'].id),
+        name: Like(`%${searchTerm}%`),
+      },
+      relations: ['uploadedBy'],
+    })
 
     const filesArr = files.map((f) => {
       return {
-        name: f['fileId'].name,
-        description: f['fileId'].description,
-        id: f['fileId'].id,
-        uploadedAt: f['fileId'].uploadedAt,
-        uploadedBy: f['tutorId'].username,
+        name: f.name,
+        description: f.description,
+        id: f.id,
+        uploadedAt: f.uploadedAt,
+        uploadedBy: (f['uploadedBy'] as unknown as User).username,
         file_path:
           this.configService.get<string>('IMAGEKIT_URL_ENDPOINT') +
-          f['fileId'].url,
+          f.url,
       };
     });
 
@@ -245,4 +250,37 @@ export class FileService {
       },
     };
   }
+
+  async renameFile(fileId: number,fileData:RenameFileReqDto ) {
+    let file = await this.filesRepository.findOne({
+      where: { id: fileId },
+    });
+
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+
+    await this.filesRepository.update(
+      { id: fileId },
+      {
+        name: fileData.name.toLowerCase(),
+      },
+    );
+    const updatedFile = await this.filesRepository.findOne({
+      where: { id: fileId },
+    });
+
+    return {
+      message: 'File renamed successfully',
+      success: true,
+      data: {
+        file: {
+          id: file.id,
+          name: updatedFile.name,
+          description: updatedFile.description,
+        },
+      },
+    };
+  }
+
 }
