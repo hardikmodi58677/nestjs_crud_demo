@@ -46,7 +46,7 @@ export class AuthService {
     try {
       const jwtSecretKey = this.configService.get<string>('JWT_SECRET_KEY');
       const decoded = verify(token, jwtSecretKey);
-      return decoded;
+      return decoded as  { username: string; role: Role,id:number };
     } catch (error) {
       return null;
     }

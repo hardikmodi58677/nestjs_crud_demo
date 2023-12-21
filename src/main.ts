@@ -21,7 +21,7 @@ async function bootstrap() {
 
     app.getHttpAdapter().getInstance().disable('x-powered-by');
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('swagger', app, document);
 
   await app.listen(3000);
 }
