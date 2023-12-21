@@ -38,7 +38,7 @@ import { FileModule } from "./file/file.module";
         autoLoadEntities: true,
         poolSize:10,
         keepConnectionAlive:false,
-        synchronize: true,
+        synchronize: config.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
     }),
