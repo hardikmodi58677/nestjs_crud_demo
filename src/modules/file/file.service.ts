@@ -84,27 +84,39 @@ export class FileService {
     };
   }
 
-  async getFiles(req: Express.Request, classroomId: number,searchTerm:string) {
-    let classroom = await this.classroomRepository.findOne({
-      where: { id: classroomId },
-    });
+  async getFiles(req: Express.Request, classroomId?: number, searchTerm?: string) {
+    let whereClause: any = {
+    };
 
-    if (!classroom) {
-      throw new NotFoundException('Classroom not found');
+    if (classroomId) {
+      whereClause.classroomId = classroomId;
+    }
+
+    if (searchTerm) {
+      whereClause.name = Like(`%${searchTerm}%`);
+    }
+
+    let classroom;
+    if (classroomId) {
+      classroom = await this.classroomRepository.findOne({
+        where: { id: classroomId },
+      });
+
+      if (!classroom) {
+        throw new NotFoundException('Classroom not found');
+      }
     }
 
     let files = await this.filesRepository.find({
-      where: {
-        uploadedBy: Equal(req['user'].id),
-        name: Like(`%${searchTerm}%`),
-      },
+      where: whereClause,
       relations: ['uploadedBy'],
-    })
+    });
 
-    const filesArr = files.map((f) => {
+    let filesArr = files.map((f) => {
       return {
         name: f.name,
         description: f.description,
+        classroomId: f.classroomId,
         id: f.id,
         uploadedAt: f.uploadedAt,
         uploadedBy: (f['uploadedBy'] as unknown as User).username,
@@ -124,16 +136,28 @@ export class FileService {
       };
     }
 
-    let studentClassroom = await this.classroomStudentsRepository.findOne({
-      where: {
-        classroomId: classroomId,
-        studentId: req['user'].id,
-      },
-    });
+    if (classroomId) {
+      whereClause = {
+        classroomId
+      }
+      let studentClassroom = await this.classroomStudentsRepository.findOne({
+        where: {...whereClause,studentId: req['user'].id}
+      });
 
-    if (!studentClassroom) {
-      throw new NotFoundException('Student not found in classroom');
+      if (!studentClassroom) {
+        throw new NotFoundException('Student not found in classroom');
+      }
     }
+
+    // Find list of classrooms where student is enrolled
+    let studentClassrooms = await this.classroomStudentsRepository.find({
+      where: { studentId: req['user'].id },
+      select: ['classroomId'],
+    });
+    const studentClassroomIds = studentClassrooms.map((c) => c.classroomId);
+    filesArr = filesArr.filter((f) => {
+      return studentClassroomIds.includes(f.classroomId);
+    });
 
     return {
       message: 'List of files',
@@ -206,9 +230,6 @@ export class FileService {
         },
       },
     };
-
-    
-
   }
 
   async deleteFile(fileId: number) {

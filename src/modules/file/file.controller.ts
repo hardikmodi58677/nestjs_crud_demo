@@ -17,6 +17,7 @@ import {
 import {
   ApiBearerAuth,
   ApiConsumes,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -24,9 +25,15 @@ import { Throttle } from '@nestjs/throttler';
 import { Roles } from '../user/decorators/role.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from '../user/enums/role.enum';
-import { FileUploadDto,UploadFileSuccessResDto,GetFilesSuccessResDto, FileDataDto, RenameFileReqDto } from "./dtos";
+import {
+  FileUploadDto,
+  UploadFileSuccessResDto,
+  GetFilesSuccessResDto,
+  FileDataDto,
+  RenameFileReqDto,
+} from './dtos';
 import { FileService } from './file.service';
-import { validateAllowedFileTypes } from "src/utils";
+import { validateAllowedFileTypes } from 'src/utils';
 
 @Controller('files')
 @ApiTags('Files')
@@ -49,14 +56,13 @@ export class FileController {
   })
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(
-    FileInterceptor('file', {fileFilter: validateAllowedFileTypes}),
+    FileInterceptor('file', { fileFilter: validateAllowedFileTypes }),
   )
-  
   async uploadFile(
     @Request() req: Express.Request & { fileValidationError: string },
     @UploadedFile() file: Express.Multer.File,
     @Body() fileUploadDto: FileUploadDto,
-    @Query('classroomId') classroomId: number
+    @Query('classroomId') classroomId: number,
   ) {
     if (req.fileValidationError) {
       throw new BadRequestException(req.fileValidationError);
@@ -71,19 +77,23 @@ export class FileController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'List of files',
-    type: GetFilesSuccessResDto
+    type: GetFilesSuccessResDto,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Only audio,video, image,and url files are allowed!',
   })
   @HttpCode(HttpStatus.OK)
+  @ApiQuery({ name: 'classroomId', required: false, type: Number })
+  @ApiQuery({ name: 'searchTerm', required: false, type: String })
   getFiles(
     @Request() req: Express.Request,
-    @Query('classroomId') classroomId: number,
-    @Query('searchTerm') searchTerm: string,
+    @Query('classroomId') classroomId?: number,
+    @Query('searchTerm') searchTerm?: string,
   ) {
-    return this.filesService.getFiles(req, classroomId,searchTerm);
+    console.log('classroomId', classroomId);
+    console.log('searhTerm', searchTerm);
+    return this.filesService.getFiles(req, +classroomId, searchTerm);
   }
 
   @Get(':fileId')
@@ -99,10 +109,8 @@ export class FileController {
     description: 'File not found!',
   })
   @HttpCode(HttpStatus.OK)
-  getFile(
-    @Request() req: Express.Request,
-    @Param('fileId') fileId: number) {
-    return this.filesService.getFile(req,fileId);
+  getFile(@Request() req: Express.Request, @Param('fileId') fileId: number) {
+    return this.filesService.getFile(req, fileId);
   }
 
   @Delete(':fileId')
@@ -125,13 +133,16 @@ export class FileController {
     status: HttpStatus.OK,
     description: 'File renamed successfully',
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'File not found!',type:FileDataDto })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'File not found!',
+    type: FileDataDto,
+  })
   @HttpCode(HttpStatus.OK)
   renameFile(
     @Param('fileId') fileId: number,
-    @Body() fileData: RenameFileReqDto
+    @Body() fileData: RenameFileReqDto,
   ) {
-    return this.filesService.renameFile(fileId,fileData);
+    return this.filesService.renameFile(fileId, fileData);
   }
-
 }
