@@ -8,7 +8,6 @@ import {
   ClassroomStudents,
   File,
 } from '../classroom/entities';
-import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
