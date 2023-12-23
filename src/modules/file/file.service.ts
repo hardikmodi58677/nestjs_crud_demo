@@ -114,8 +114,6 @@ export class FileService {
       relations: ['uploadedBy','classroomId'],
     });
 
-    console.info('files', whereClause,files[0]);
-
     let filesArr = files.map((f) => {
       return {
         name: f.name,
@@ -142,8 +140,10 @@ export class FileService {
       whereClause = {
         classroomId:classroom.id
       }
+      Object.assign(whereClause, { studentId: req['user'].id });
+
       let studentClassroom = await this.classroomStudentsRepository.findOne({
-        where: {...whereClause,studentId: req['user'].id}
+        where: whereClause
       });
 
       if (!studentClassroom) {
@@ -158,7 +158,7 @@ export class FileService {
     });
     const studentClassroomIds = studentClassrooms.map((c) => c.classroomId);
     filesArr = filesArr.filter((f) => {
-      return studentClassroomIds.includes((f.classroomId as unknown as Classroom).id);
+      return studentClassroomIds.includes(f.classroomId);
     });
 
     return {
