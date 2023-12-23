@@ -91,7 +91,7 @@ export class FileService {
   async getFiles(req: Express.Request, classroomId?: number, searchTerm?: string) {
     let whereClause: { classroomId?: number; name?: any } = {}
     if (classroomId) {
-      whereClause.classroomId = classroomId;
+      Object.assign(whereClause, { classroomId:Equal(classroomId) });
     }
 
     if (searchTerm) {
@@ -101,7 +101,7 @@ export class FileService {
     let classroom;
     if (classroomId) {
       classroom = await this.classroomRepository.findOne({
-        where: { id: classroomId },
+        where: { id: Equal(classroomId) },
       });
 
       if (!classroom) {
@@ -111,14 +111,16 @@ export class FileService {
 
     let files = await this.filesRepository.find({
       where: whereClause,
-      relations: ['uploadedBy'],
+      relations: ['uploadedBy','classroomId'],
     });
+
+    console.info('files', whereClause,files[0]);
 
     let filesArr = files.map((f) => {
       return {
         name: f.name,
         description: f.description,
-        classroomId: f.classroomId,
+        classroomId: (f.classroomId as unknown as Classroom)?.id,
         id: f.id,
         uploadedAt: f.uploadedAt,
         uploadedBy: (f['uploadedBy'] as unknown as User).username,
@@ -138,7 +140,7 @@ export class FileService {
 
     if (classroomId) {
       whereClause = {
-        classroomId
+        classroomId:classroom.id
       }
       let studentClassroom = await this.classroomStudentsRepository.findOne({
         where: {...whereClause,studentId: req['user'].id}
@@ -156,7 +158,7 @@ export class FileService {
     });
     const studentClassroomIds = studentClassrooms.map((c) => c.classroomId);
     filesArr = filesArr.filter((f) => {
-      return studentClassroomIds.includes(f.classroomId);
+      return studentClassroomIds.includes((f.classroomId as unknown as Classroom).id);
     });
 
     return {

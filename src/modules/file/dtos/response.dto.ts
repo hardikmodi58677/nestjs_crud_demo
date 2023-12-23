@@ -51,6 +51,7 @@ export class GetFilesSuccessResDto {
           name: 'test.png',
           description: 'test',
           uploadedAt: '2021-10-15T10:32:20.000Z',
+          classroomId: 1,
           uploadedBy: 'john',
           url: 'https://ik.imagekit.io/3qmd5lfj7n/tutors/1/test.png',
           fileType: 'image/png',
