@@ -22,7 +22,8 @@ export class FileService {
     private classroomStudentsRepository: Repository<ClassroomStudents>,
     @InjectRepository(ClassroomFiles)
     private classroomFilesRepository: Repository<ClassroomFiles>,
-    @InjectRepository(File) private filesRepository: Repository<File>,
+    @InjectRepository(File) 
+    private filesRepository: Repository<File>,
     private imagekitService: ImageKitService,
     private configService: ConfigService,
   ) {}
@@ -88,9 +89,7 @@ export class FileService {
   }
 
   async getFiles(req: Express.Request, classroomId?: number, searchTerm?: string) {
-    let whereClause: any = {
-    };
-
+    let whereClause: { classroomId?: number; name?: any } = {}
     if (classroomId) {
       whereClause.classroomId = classroomId;
     }
@@ -123,9 +122,7 @@ export class FileService {
         id: f.id,
         uploadedAt: f.uploadedAt,
         uploadedBy: (f['uploadedBy'] as unknown as User).username,
-        url:
-          this.configService.get<string>('IMAGEKIT_URL_ENDPOINT') +
-          f.url,
+        url:f.url,
       };
     });
 
