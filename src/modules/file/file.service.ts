@@ -56,7 +56,7 @@ export class FileService {
       name: file.originalname,
       description: data.description,
       uploadedAt: new Date().toISOString(),
-      url: this.configService.get<string>('IMAGEKIT_URL_ENDPOINT') + filePath,
+      url: filePath,
       uploadedBy: req['user'].id,
       fileType: data.fileType,
       fileDetails: {
@@ -65,7 +65,7 @@ export class FileService {
       },
     };
 
-    const uploadedFile = await this.filesRepository.save(fileDetails);
+    const uploadedFile = await this.filesRepository.save({...fileDetails,classroomId});
     // const signedUrl = await this.imagekitService.getSignedUrl(filePath);
 
     await this.classroomFilesRepository.save({
@@ -74,13 +74,16 @@ export class FileService {
       tutorId: req['user'].id,
     });
 
-    Object.assign(fileDetails, { uploadedBy: req['user'].username });
-    delete fileDetails.fileDetails;
+    Object.assign(uploadedFile, { uploadedBy: req['user'].username });
+    delete uploadedFile.fileDetails;
 
     return {
       message: 'File uploaded successfully',
       success: true,
-      data: uploadedFile,
+      data: {
+        ...uploadedFile,
+        url:this.configService.get<string>('IMAGEKIT_URL_ENDPOINT') + uploadedFile.url
+      },
     };
   }
 
@@ -120,7 +123,7 @@ export class FileService {
         id: f.id,
         uploadedAt: f.uploadedAt,
         uploadedBy: (f['uploadedBy'] as unknown as User).username,
-        file_path:
+        url:
           this.configService.get<string>('IMAGEKIT_URL_ENDPOINT') +
           f.url,
       };
@@ -169,12 +172,12 @@ export class FileService {
   }
 
   async getFile(req: Express.Request, fileId: number) { 
-    if((req['user'].role == Role.Student)){
-      let classroomFile = await this.classroomFilesRepository.findOne({
-        where: { fileId: Equal(fileId) },
-        relations: ['fileId'],
-      });
+    let classroomFile = await this.classroomFilesRepository.findOne({
+      where: { fileId: Equal(fileId) },
+      relations: ['fileId','tutorId'],
+    });
 
+    if((req['user'].role == Role.Student)){
       if (!classroomFile) {
         throw new NotFoundException('File not found');
       }
@@ -191,7 +194,7 @@ export class FileService {
       }
 
       return {
-        message: 'File details',
+        message: 'File detail',
         success: true,
         data: {
           file: {
@@ -200,7 +203,7 @@ export class FileService {
             description: (classroomFile['fileId'] as any)?.description,
             uploadedAt: (classroomFile['fileId'] as any)?.uploadedAt,
             uploadedBy: (classroomFile['tutorId'] as any)?.username,
-            file_path:
+            url:
               this.configService.get<string>('IMAGEKIT_URL_ENDPOINT') +
               (classroomFile['fileId'] as any)?.url,
           },
@@ -208,7 +211,8 @@ export class FileService {
       };
     }
     let file = await this.filesRepository.findOne({
-      where: { id: fileId },
+      where: { id: Equal(fileId) },
+      relations: ['uploadedBy'],
     });
 
     if (!file) {
@@ -224,9 +228,8 @@ export class FileService {
           name: file.name,
           description: file.description,
           uploadedAt: file.uploadedAt,
-          uploadedBy: file.uploadedBy,
-          file_path:
-            this.configService.get<string>('IMAGEKIT_URL_ENDPOINT') + file.url,
+          uploadedBy: (file['uploadedBy'] as unknown as User).username,
+          url:this.configService.get<string>('IMAGEKIT_URL_ENDPOINT') + file.url,
         },
       },
     };
@@ -252,8 +255,6 @@ export class FileService {
         id: fileId,
       });
     });
-
-    console.log('classroomFile', classroomFile)
 
     await this.imagekitService.deleteImage(
       (classroomFile['fileId'] as any).fileDetails.fileId,

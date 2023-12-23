@@ -41,7 +41,6 @@ export class ImageKitService {
       signed: true,
       expireSeconds: 600,
     });
-    console.log(`url`, url);
     return url;
   }
 

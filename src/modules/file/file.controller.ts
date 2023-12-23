@@ -91,8 +91,6 @@ export class FileController {
     @Query('classroomId') classroomId?: number,
     @Query('searchTerm') searchTerm?: string,
   ) {
-    console.log('classroomId', classroomId);
-    console.log('searhTerm', searchTerm);
     return this.filesService.getFiles(req, +classroomId, searchTerm);
   }
 
@@ -110,7 +108,7 @@ export class FileController {
   })
   @HttpCode(HttpStatus.OK)
   getFile(@Request() req: Express.Request, @Param('fileId') fileId: number) {
-    return this.filesService.getFile(req, fileId);
+    return this.filesService.getFile(req, +fileId);
   }
 
   @Delete(':fileId')

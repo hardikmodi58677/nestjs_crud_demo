@@ -26,6 +26,9 @@ export class UploadFileSuccessResDto {
 
   @ApiProperty({ example: 24 })
   id: number;
+
+  @ApiProperty({ example: 1 })
+  classroomId: number;
 }
 
 export class FileDataDto{
