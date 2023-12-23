@@ -39,6 +39,7 @@ import { FileModule } from "./file/file.module";
         poolSize:10,
         keepConnectionAlive:false,
         synchronize: config.get('NODE_ENV') === 'development',
+        ssl:true
       }),
       inject: [ConfigService],
     }),
