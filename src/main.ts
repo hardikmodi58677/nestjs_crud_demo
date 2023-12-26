@@ -15,8 +15,7 @@ async function bootstrap() {
       name:'Authorization',
       scheme:'bearer',
       in:'header',
-    },'jwt-auth'
-    )
+    })
     .build()
 
     app.getHttpAdapter().getInstance().disable('x-powered-by');

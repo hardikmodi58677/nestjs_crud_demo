@@ -12,6 +12,7 @@ import {
   Query,
   Request,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -34,16 +35,20 @@ import {
 } from './dtos';
 import { FileService } from './file.service';
 import { validateAllowedFileTypes } from "../../utils"
+import { RolesGuard } from "../user/guards/role.guard";
+import { AuthGuard } from "../auth/auth.guard";
 
 @Controller('files')
 @ApiTags('Files')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 export class FileController {
   constructor(private filesService: FileService) {}
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiConsumes('multipart/form-data')
   @Post('/upload')
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -72,7 +77,7 @@ export class FileController {
   }
 
   @Get()
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor, Role.Student)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -95,7 +100,7 @@ export class FileController {
   }
 
   @Get(':fileId')
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor, Role.Student)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -112,7 +117,7 @@ export class FileController {
   }
 
   @Delete(':fileId')
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -125,7 +130,7 @@ export class FileController {
   }
 
   @Put(':fileId')
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor)
   @ApiResponse({
     status: HttpStatus.OK,

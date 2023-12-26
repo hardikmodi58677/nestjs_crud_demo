@@ -11,10 +11,12 @@ import { ClassroomFiles } from './entities/classroom_files.entity';
 import { User } from "../user/entities";
 import { RolesGuard } from "../user/guards/role.guard";
 import { ImageKitModule } from "../../libs/image-kit/src"
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
   imports: [
     ConfigModule,
+    AuthModule,
     TypeOrmModule.forFeature([
       Classroom,
       ClassroomStudents,
@@ -39,10 +41,10 @@ import { ImageKitModule } from "../../libs/image-kit/src"
   controllers: [ClassroomController],
   providers: [
     ClassroomService,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
   ],
 })
 export class ClassroomModule {}

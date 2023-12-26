@@ -8,9 +8,11 @@ import {
   ClassroomStudents,
   File,
 } from '../classroom/entities';
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([
       Classroom,
       ClassroomStudents,

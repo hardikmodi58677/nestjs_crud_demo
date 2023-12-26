@@ -29,6 +29,7 @@ export class ClassroomService {
   ) {
     createClassroomDto['tutorId'] = req['user'].id;
     createClassroomDto['name'] = createClassroomDto.name.toLowerCase();
+
     const isClassroomExists = await this.classroomRepository.findOne({
       where: { name: Equal(createClassroomDto.name) },
     });
@@ -42,7 +43,7 @@ export class ClassroomService {
 
   getClassrooms(user: { username: string; role: string; id: number }) {
     if (user.role === Role.Tutor) {
-      return this.classroomRepository.find({ where: { tutorId: user.id } });
+      return this.classroomRepository.find();
     }
     return this.classroomStudentsRepository.find({
       where: { studentId: user.id },

@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersService } from '../user/users.service';
 import { sign, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { SignInResDto } from './dtos';
-import { Role } from 'src/modules/user/enums/role.enum';
+import { Role } from "../user/enums/role.enum";
 
 @Injectable()
 export class AuthService {

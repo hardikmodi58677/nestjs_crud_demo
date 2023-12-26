@@ -6,6 +6,7 @@ import {
   Body,
   Request,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ClassroomService } from './classroom.service';
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -17,14 +18,18 @@ import {
 } from './dtos';
 import { Roles } from '../user/decorators/role.decorator';
 import { Role } from '../user/enums/role.enum';
+import { AuthGuard } from "../auth/auth.guard";
+import { RolesGuard } from "../user/guards/role.guard";
 
 @Controller('classrooms')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 export class ClassroomController {
   constructor(private classRoomService: ClassroomService) {}
 
   @ApiTags('Classroom')
   @Post()
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor)
   @ApiResponse({
     status: 201,
@@ -40,8 +45,8 @@ export class ClassroomController {
 
   @ApiTags('Classroom')
   @Get()
-  @ApiBearerAuth('jwt-auth')
-  @Roles(Role.Tutor, Role.Student)
+  @UseGuards(RolesGuard)
+  @Roles(Role.Tutor,Role.Student)
   @ApiResponse({
     status: 200,
     description: 'List of classrooms',
@@ -53,7 +58,8 @@ export class ClassroomController {
 
   @ApiTags('Classroom')
   @Get(':classroomId')
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
+  @Roles(Role.Tutor,Role.Student)
   @ApiResponse({
     status: 200,
     description: 'Classroom details',
@@ -68,7 +74,7 @@ export class ClassroomController {
 
   @ApiTags('Classroom')
   @Delete(':classroomId')
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor)
   @ApiResponse({ status: 200, description: 'Classroom deleted successfully' })
   @ApiParam({ name: 'classroomId', description: 'Classroom ID' })
@@ -81,7 +87,7 @@ export class ClassroomController {
 
   @ApiTags('Classroom-Student')
   @Post(':classroomId/students')
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor)
   @ApiResponse({
     status: 201,
@@ -102,7 +108,7 @@ export class ClassroomController {
 
   @ApiTags('Classroom-Student')
   @Get(':classroomId/students')
-  @ApiBearerAuth('jwt-auth')
+  @UseGuards(RolesGuard)
   @Roles(Role.Tutor)
   @ApiResponse({
     status: 200,
@@ -118,7 +124,6 @@ export class ClassroomController {
 
   @ApiTags('Classroom-Student')
   @Delete(':classroomId/students/:studentId')
-  @ApiBearerAuth('jwt-auth')
   @Roles(Role.Tutor)
   @ApiResponse({
     status: 200,
