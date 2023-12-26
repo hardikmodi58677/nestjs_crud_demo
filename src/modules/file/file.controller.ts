@@ -33,7 +33,7 @@ import {
   RenameFileReqDto,
 } from './dtos';
 import { FileService } from './file.service';
-import { validateAllowedFileTypes } from 'src/utils';
+import { validateAllowedFileTypes } from "../../utils"
 
 @Controller('files')
 @ApiTags('Files')

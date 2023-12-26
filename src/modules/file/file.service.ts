@@ -7,7 +7,7 @@ import {
   File,
 } from '../classroom/entities';
 import { Equal, Like, Repository } from 'typeorm';
-import { ImageKitService } from 'src/libs/image-kit/src';
+import { ImageKitService } from "../../libs/image-kit/src"
 import { ConfigService } from '@nestjs/config';
 import { Role } from '../user/enums/role.enum';
 import { User } from "../user/entities";

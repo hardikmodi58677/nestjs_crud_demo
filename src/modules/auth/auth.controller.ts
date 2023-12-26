@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SignInReqDto,SignInResDto, signInErrorResDto } from "./dtos";
@@ -9,7 +9,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signin')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'User signed in.', type: SignInResDto })
   @ApiResponse({ status: 401, description: 'Unauthorized.',type:signInErrorResDto })
   async signIn(@Body() signInDto: SignInReqDto) {

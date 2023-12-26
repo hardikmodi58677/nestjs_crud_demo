@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { ClassroomController } from './classroom.controller';
 import { ClassroomService } from './classroom.service';
 import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from 'src/modules/user/guards/role.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Classroom } from './entities/classroom.entity';
 import { ClassroomStudents } from './entities/classroom_students.entity';
-import { User } from 'src/modules/user/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ImageKitModule } from 'src/libs/image-kit/src';
 import { File } from './entities/file.entity';
 import { ClassroomFiles } from './entities/classroom_files.entity';
+import { User } from "../user/entities";
+import { RolesGuard } from "../user/guards/role.guard";
+import { ImageKitModule } from "../../libs/image-kit/src"
 
 @Module({
   imports: [

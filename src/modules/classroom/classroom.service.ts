@@ -6,15 +6,11 @@ import {
 import { CreateClassRoomDto } from './dtos';
 import { Equal, In, Repository } from 'typeorm';
 import { Classroom } from './entities/classroom.entity';
-import { Role } from 'src/modules/user/enums/role.enum';
+import { Role } from "../user/enums/role.enum";
 import { ClassroomStudents } from './entities/classroom_students.entity';
 import { AddStudentsToClassDto } from './dtos/request.dto';
-import { User } from 'src/modules/user/entities/user.entity';
-import { ImageKitService } from 'src/libs/image-kit/src';
-import { File } from './entities/file.entity';
-import { ClassroomFiles } from './entities/classroom_files.entity';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
+import { User } from "../user/entities";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class ClassroomService {

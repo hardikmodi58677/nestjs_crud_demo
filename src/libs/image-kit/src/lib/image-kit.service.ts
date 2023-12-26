@@ -1,10 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 const ImageKit = require('imagekit');
-import { Express } from 'express';
-import { Multer } from 'multer';
-
 import { ImageKitConfig } from './image-kit.interface';
-import { MODULE_OPTIONS_TOKEN } from './image-kit.module.definition';
+import { MODULE_OPTIONS_TOKEN } from "./image-kit.module.definition";
 
 @Injectable()
 export class ImageKitService {
